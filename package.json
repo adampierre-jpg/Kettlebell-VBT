@@ -1,0 +1,19 @@
+{
+  "name": "kettlebell-vbt",
+  "version": "1.0.0",
+  "description": "Velocity-Based Training Analysis for Kettlebells using Gemini AI",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

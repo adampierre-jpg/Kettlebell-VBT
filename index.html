@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kettlebell VBT | Velocity-Based Training Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <h1>KB<span class="accent">VBT</span></h1>
+            </div>
+            <p class="tagline">Velocity-Based Kettlebell Training</p>
+            <p class="brand-tag">by Essential Fitness</p>
+        </header>
+
+        <main class="main">
+            <!-- Step 1: Protocol Setup -->
+            <section class="card" id="protocol-section">
+                <div class="card-header">
+                    <span class="step-badge">1</span>
+                    <h2>Define Your Protocol</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="exercise">Exercise</label>
+                            <select id="exercise">
+                                <option value="snatch">Snatch</option>
+                                <option value="swing">Swing</option>
+                                <option value="clean">Clean</option>
+                                <option value="clean-press">Clean & Press</option>
+                                <option value="jerk">Jerk</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="kettlebell-weight">Kettlebell (kg)</label>
+                            <input type="number" id="kettlebell-weight" value="24" min="4" max="92" step="2">
+                        </div>
+                        <div class="form-group">
+                            <label for="reps-per-set">Reps per Set</label>
+                            <input type="number" id="reps-per-set" value="2" min="1" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="interval">Interval (seconds)</label>
+                            <input type="number" id="interval" value="30" min="10" max="300" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="arm-pattern">Arm Pattern</label>
+                        <select id="arm-pattern">
+                            <option value="left-only">Left arm only</option>
+                            <option value="right-only">Right arm only</option>
+                            <option value="alternating-sets" selected>Alternating (switch each set)</option>
+                            <option value="alternating-reps">Alternating (switch each rep)</option>
+                            <option value="both">Both arms (two-hand exercise)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="starting-arm-group">
+                        <label for="starting-arm">Starting Arm</label>
+                        <select id="starting-arm">
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Video Upload -->
+            <section class="card" id="upload-section">
+                <div class="card-header">
+                    <span class="step-badge">2</span>
+                    <h2>Upload Your Video</h2>
+                </div>
+                <div class="card-body">
+                    <div class="upload-zone" id="upload-zone">
+                        <input type="file" id="video-input" accept="video/*" hidden>
+                        <div class="upload-content">
+                            <span class="upload-icon">📹</span>
+                            <p class="upload-text">Drop video here or click to upload</p>
+                            <p class="upload-hint">MP4, MOV, or WEBM • Max 100MB</p>
+                        </div>
+                    </div>
+                    <div class="video-preview" id="video-preview" hidden>
+                        <video id="preview-player" controls></video>
+                        <button class="btn btn-secondary" id="remove-video">Remove Video</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Analyze -->
+            <section class="card" id="analyze-section">
+                <div class="card-header">
+                    <span class="step-badge">3</span>
+                    <h2>Analyze</h2>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary btn-large" id="analyze-btn" disabled>
+                        <span class="btn-text">Analyze Video</span>
+                        <span class="btn-loader" hidden></span>
+                    </button>
+                    <p class="analyze-hint">Analysis typically takes 15-30 seconds</p>
+                </div>
+            </section>
+
+            <!-- Results -->
+            <section class="card results-card" id="results-section" hidden>
+                <div class="card-header">
+                    <span class="step-badge">⚡</span>
+                    <h2>Velocity Analysis</h2>
+                </div>
+                <div class="card-body">
+                    <div class="results-summary" id="results-summary">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="results-table-wrapper">
+                        <table class="results-table" id="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Rep</th>
+                                    <th>Arm</th>
+                                    <th>Duration</th>
+                                    <th>Velocity</th>
+                                    <th>Δ vs Avg</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="velocity-chart" id="velocity-chart">
+                        <!-- Simple bar chart populated by JS -->
+                    </div>
+                    <div class="coaching-notes" id="coaching-notes">
+                        <!-- AI coaching notes -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Built for <strong>Essential Fitness</strong></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
