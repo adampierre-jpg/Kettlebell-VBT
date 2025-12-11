@@ -1,4 +1,5 @@
 // ============================================
+// ============================================
 // KETTLEBELL VBT - Gemini Analysis API
 // Vercel Serverless Function
 // ============================================
@@ -24,8 +25,13 @@ module.exports = async function handler(req, res) {
         // Build the analysis prompt
         const prompt = buildPrompt(protocol);
 
-        // Call Gemini
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+        // Call Gemini with JSON mode
+        const model = genAI.getGenerativeModel({ 
+            model: 'gemini-1.5-pro',
+            generationConfig: {
+                responseMimeType: 'application/json'
+            }
+        });
 
         const result = await model.generateContent([
             {
@@ -65,56 +71,31 @@ function buildPrompt(protocol) {
 
     const armContext = getArmContext(protocol);
 
-    return `You are a velocity-based training analyzer for kettlebell exercises.
+    return `Analyze this kettlebell video for velocity-based training metrics.
 
-CONTEXT:
+PROTOCOL:
 - Exercise: ${exerciseName}
-- Kettlebell weight: ${protocol.weight}kg
-- Protocol: ${protocol.repsPerSet} reps every ${protocol.interval} seconds
+- Weight: ${protocol.weight}kg
+- Expected: ${protocol.repsPerSet} reps every ${protocol.interval} seconds
 - ${armContext}
 
-TASK:
-Analyze this video frame-by-frame to extract velocity-based training metrics.
+TASK: For each rep, identify the start time (hip hinge/pull), end time (lockout), duration, and estimate velocity on a 1-10 scale.
 
-For EACH repetition, identify:
-1. Rep number (sequential across all sets)
-2. Arm used (based on the arm pattern provided above)
-3. Timestamp when the explosive phase begins (hip hinge/pull initiation)
-4. Timestamp when the rep is complete (lockout/catch)
-5. Rep duration in seconds (end - start)
-6. Estimated velocity score (1-10 scale based on movement speed, where 10 is explosive/fast and 1 is slow/grinding)
-
-RESPOND IN THIS EXACT JSON FORMAT:
+Return this exact JSON structure:
 {
     "reps": [
-        {
-            "repNumber": 1,
-            "arm": "Left",
-            "startTime": "00:03.2",
-            "endTime": "00:04.1",
-            "duration": 0.9,
-            "velocityScore": 8
-        }
+        {"repNumber": 1, "arm": "Left", "startTime": "00:03.2", "endTime": "00:04.1", "duration": 0.9, "velocityScore": 8}
     ],
     "summary": {
-        "totalReps": 8,
-        "avgDuration": 1.05,
-        "avgVelocity": 7.5,
+        "totalReps": 0,
+        "avgDuration": 0.0,
+        "avgVelocity": 0.0,
         "fastestRep": 1,
-        "slowestRep": 8,
-        "velocityDropPercent": 12.5
+        "slowestRep": 1,
+        "velocityDropPercent": 0.0
     },
-    "coachingNotes": "Your observations about rep consistency, velocity trends, fatigue signs, and any technique notes."
-}
-
-IMPORTANT:
-- Be precise with timestamps (use milliseconds when possible)
-- Duration = endTime - startTime
-- Velocity score should reflect actual movement speed, not your judgment of form
-- Note any significant velocity drop-off between first and last reps
-- Coaching notes should be actionable and specific to what you observe
-
-Respond ONLY with valid JSON. No markdown, no explanation outside the JSON.`;
+    "coachingNotes": "Brief observation about consistency, fatigue, technique."
+}`;
 }
 
 function getArmContext(protocol) {
@@ -138,6 +119,8 @@ function parseGeminiResponse(text, protocol) {
     try {
         // Clean up the response - remove markdown code blocks if present
         let cleanText = text.trim();
+        
+        // Remove markdown code fences
         if (cleanText.startsWith('```json')) {
             cleanText = cleanText.slice(7);
         }
@@ -147,6 +130,13 @@ function parseGeminiResponse(text, protocol) {
         if (cleanText.endsWith('```')) {
             cleanText = cleanText.slice(0, -3);
         }
+        
+        // Try to find JSON object in the response if there's extra text
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            cleanText = jsonMatch[0];
+        }
+        
         cleanText = cleanText.trim();
 
         const data = JSON.parse(cleanText);
@@ -167,7 +157,7 @@ function parseGeminiResponse(text, protocol) {
         console.error('Failed to parse Gemini response:', parseError);
         console.error('Raw response:', text);
         
-        // Return a fallback structure
+        // Return a fallback structure with the raw text for debugging
         return {
             reps: [],
             totalReps: 0,
@@ -176,7 +166,7 @@ function parseGeminiResponse(text, protocol) {
             fastestRep: 0,
             slowestRep: 0,
             velocityDropoff: 0,
-            coachingNotes: 'Unable to parse analysis results. Raw response: ' + text.substring(0, 200)
+            coachingNotes: 'Parse error. Gemini response: ' + text.substring(0, 300)
         };
     }
 }
